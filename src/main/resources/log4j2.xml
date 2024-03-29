@@ -84,12 +84,6 @@
     </Appenders>
 
     <Loggers>
-        <!--    Application Logger    -->
-
-
-        <!--   FATAL > ERROR > WARN > INFO > DEBUG > TRACE   -->
-        <!--   Log 가 찍힐 대상 설정     -->
-
         <!--   ROOT logger     -->
         <Root level="INFO">
             <AppenderRef ref="console" />

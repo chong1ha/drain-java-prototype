@@ -48,6 +48,12 @@
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 			<version>${log4j2.v}</version>
 		</dependency>
+		<!-- ini4j -->
+		<dependency>
+			<groupId>org.ini4j</groupId>
+			<artifactId>ini4j</artifactId>
+			<version>0.5.4</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
