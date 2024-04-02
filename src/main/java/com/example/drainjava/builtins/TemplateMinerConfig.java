@@ -2,8 +2,11 @@ package com.example.drainjava.builtins;
 
 
 import com.example.drainjava.common.util.StringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +18,13 @@ import java.io.IOException;
  * @version 0.1
  * @since 2024-03-28 오후 5:56
  */
+@Getter
+@Setter
+@Component
 public class TemplateMinerConfig {
+
+    /** Drain 또는 Jaccard Drain 선택 */
+    private String engine = EngineType.DRAIN.toString();
 
     /** 프로파일링 활성화 여부 */
     private boolean profilingEnabled = false;
@@ -24,7 +33,7 @@ public class TemplateMinerConfig {
 
     /** 현재 상태, 자동 저장 간격 (분 단위) */
     private int snapshotInterval = 5;
-    /** 상태를 저장하기 전, 압축 여부 */
+    /** 상태를 로드/저장하기 전, 압축 여부 */
     private boolean snapshotCompressState = true;
 
     /** 유사도 임계값 */

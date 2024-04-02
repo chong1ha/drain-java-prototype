@@ -1,6 +1,9 @@
 package com.example.drainjava;
 
+import com.example.drainjava.builtins.FilePersistence;
+import com.example.drainjava.builtins.TemplateMiner;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -17,10 +20,24 @@ import java.util.List;
  */
 @Log4j2
 @Component
-public class ArgumentRunner implements ApplicationRunner {
+public class ArgumentParser implements ApplicationRunner {
+
+    private final TemplateMiner templateMiner;
+    private final FilePersistence filePersistence;
+    @Autowired
+    public ArgumentParser(TemplateMiner templateMiner, FilePersistence filePersistence) {
+        this.templateMiner = templateMiner;
+        this.filePersistence = filePersistence;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
+        // 옵션 처리
+        processOptions(args);
+    }
+
+    private void processOptions(ApplicationArguments args) throws Exception {
 
         // 옵션 3. 스냅샷 기능 활성화 여부
         boolean isSnapshotEnabled = args.containsOption("s") || args.containsOption("-snapshot");
@@ -70,30 +87,43 @@ public class ArgumentRunner implements ApplicationRunner {
         }
 
         // 옵션 6. 상태정보 저장 및 로드, JSON 파일
-        if (args.containsOption("j") || args.containsOption("json")) {
-            List<String> optionValues = args.getOptionValues("j");
+        String jsonPath = "";
+        if (args.containsOption("j") || args.containsOption("-json")) {
+            List<String> optionValues = args.getOptionValues("j") ;
             if (optionValues != null && !optionValues.isEmpty()) {
-                String jsonPath = optionValues.get(0);
-                // TODO: 2024-03-29(금), 16:22 (1)스냅샷.json 가져와서 처리
+                jsonPath = optionValues.get(0);
             }
         }
 
         // 옵션 7. 상태정보 저장 및 로드, Kafka
-        if (args.containsOption("k") || args.containsOption("kafka")) {
+        if (args.containsOption("k") || args.containsOption("-kafka")) {
             return;
         }
 
         // 옵션 8. 상태정보 저장 및 로드, Redis
-        if (args.containsOption("r") || args.containsOption("redis")) {
+        if (args.containsOption("r") || args.containsOption("-redis")) {
             return;
         }
 
         // 옵션 9. 세부정보 출력
-        if (args.containsOption("verbose")) {
+        if (args.containsOption("-verbose")) {
             return;
         }
 
-        // TODO: 2024-03-29(금), 16:23 (2) FILE 인자 처리에 대한 것 - 새로운 로그 데이터파일
+        // FILE 인자들 (로그데이터 파일들, Drain 입력데이터)
+        List<String> logFIlePathList = args.getNonOptionArgs();
+        if (logFIlePathList.isEmpty() == false) {
+            for (String logFilePath :logFIlePathList) {
+                //
+            }
+        } else {
+            System.out.println("Error: FILE 인자 누락");
+            return;
+        }
+
+        // Drain
+        filePersistence.setFilePath(jsonPath);
+        templateMiner.loadState();
     }
 
     /**
