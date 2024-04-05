@@ -3,7 +3,8 @@ package com.example.drainjava.builtins;
 import java.io.IOException;
 
 /**
- * (File, Memory, Kafka, Redis, None) Persistence
+ * Persistence Mode <br>>
+ * (File, Memory, Kafka, Redis, None)
  *
  * @author gunha
  * @version 0.1

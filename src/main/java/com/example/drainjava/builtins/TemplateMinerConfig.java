@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TemplateMiner config 정보
@@ -36,7 +38,7 @@ public class TemplateMinerConfig {
     /** 상태를 로드/저장하기 전, 압축 여부 */
     private boolean snapshotCompressState = true;
 
-    /** 유사도 임계값 */
+    /** 유사도 임계값, 이 값보다 낮으면 새로운 로그 클러스터 생성 */
     private double simTh = 0.4;
     /** 파싱트리의 최대 깊이 (최소값 3) */
     private int depth = 4;
@@ -44,11 +46,16 @@ public class TemplateMinerConfig {
     private int maxChildren = 100;
     /** 추적할 최대클러스터 수 (이 값에 도달하면 old cluster -> new cluster 교체, LRU 캐시 방침에 의거) */
     private Integer maxClusters = null;
+    /** 로그 메시지를 단어로 분할할 때, 적용되는 구분 기호 (공백 외에 추가 구분 기호가 필요한 경우 사용) */
+    private List<String> extraDelimiters = new ArrayList<>();
 
     /** 템플릿 내 식별된 매개변수의 wrapping, 접두사 */
     private String maskPrefix = "<";
     /** 템플릿 내 식별된 매개변수의 wrapping, 접미사 */
     private String maskSuffix = ">";
+    /** 적어도 하나의 숫자를 포함하는 토큰을 템플릿 매개변수로 취급할지 여부 */
+    private boolean parameterizeNumericTokens = true;
+
 
     /**
      * 구성파일(.ini)의 설정값 로드 및 객체에 할당

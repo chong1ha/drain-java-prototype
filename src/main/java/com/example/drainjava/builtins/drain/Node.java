@@ -1,5 +1,7 @@
 package com.example.drainjava.builtins.drain;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +18,12 @@ import java.util.Map;
 public class Node {
 
     /** 자식 노드를 키로 매핑 */
-    private final Map<String, Node> keyToChildNode;
+    @SerializedName("key_to_child_node")
+    private Map<String, Node> keyToChildNode;
 
     /** clusterId 리스트 */
-    private final List<Integer> clusterIds;
+    @SerializedName("cluster_ids")
+    private List<Integer> clusterIds;
 
     public Node() {
         this.keyToChildNode = new HashMap<>();
