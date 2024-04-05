@@ -1,6 +1,5 @@
 package com.example.drainjava.builtins.drain;
 
-import lombok.Data;
 import org.springframework.stereotype.Component;
 
 /**

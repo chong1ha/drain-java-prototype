@@ -1,6 +1,8 @@
 package com.example.drainjava.builtins;
 
 import com.example.drainjava.builtins.drain.Drain;
+import com.example.drainjava.builtins.drain.LogCluster;
+import com.example.drainjava.common.util.StringUtil;
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,11 +102,8 @@ public class TemplateMiner {
                 log.warn("Failed to parse loaded state. State may be corrupted.");
             }
 
+            System.out.println("Log Template:");
             loadedDrain.getClusters().forEach((key, value) -> System.out.println(key + ": " + value));
-            System.out.println("---------------------------------------------------------------------");
-            System.out.println(loadedDrain.getClusters());
-            System.out.println(loadedDrain.getRootNode());
-            System.out.println(loadedDrain.getIdToCluster());
 
         } catch (IOException e) {
             log.error("Error loading saved state", e);
@@ -161,7 +160,6 @@ public class TemplateMiner {
 
         // JsonObject 로 파싱
         JsonObject jsonObject = JsonParser.parseString(stateString).getAsJsonObject();
-        System.out.println("stateString: " + stateString);
 
         // newJsonObject 에 값들 재구성
         JsonObject newJsonObject = new JsonObject();
@@ -220,42 +218,59 @@ public class TemplateMiner {
         }
         newJsonObject.add("_LRUCache__order", lrucacheOrderObject);
 
-        String newJsonString = newJsonObject.toString();
-        System.out.println("----------------------");
-        System.out.println("parseString: " + newJsonString);
-
-        return gson.fromJson(newJsonString, Drain.class);
+        return gson.fromJson(newJsonObject.toString(), Drain.class);
     }
 
     /**
      * 'json://1" 에서 숫자 추출 <br>
      *  : 파이썬에서 사용되는 JSON 키 문자열
      *
-     * @param strString 'json://1'과 같은 문자열
+     * @param str 'json://1'과 같은 문자열
      * @return 추출한 숫자값을 문자열 형태로 반환
      */
-    public static String extractJsonNumber(String strString) {
+    public static String extractJsonNumber(String str) {
+
+        // 예외처리
+        if (StringUtil.isEmpty(str)) {
+            throw new IllegalArgumentException("Str is empty");
+        }
 
         // 정규표현식 패턴
         Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(strString);
+        Matcher matcher = pattern.matcher(str);
 
         if (matcher.find()) {
             // 찾은 경우,
             return matcher.group();
         } else {
             // 찾지 못한 경우, 그대로 반환
-            return strString;
+            return str;
         }
     }
 
     /**
-     * 새로운 로그 메시지를 받아, 클러스터에 추가
+     * 로그 메시지 마스킹 (생략) <br>
+     * 기존 클러스터와 로그 메시지(마스킹된)를 매칭
+     *
+     * @param logMessage 일치시킬 로그 메시지
+     * @param fullSearchStrategy 전체 클러스터 검색을 수행할 때의 전략
+     * @return LogCluster
      */
-    private void addLogMessage(String logMessage) {}
+    public LogCluster match(String logMessage, String fullSearchStrategy) {
 
-    /**
-     * 기존 클러스터와 로그 메시지를 매칭
-     */
-    private void match(String logMessage, FullSearchStrategy fullSearchStrategy) {}
+        // 예외처리
+        if (StringUtil.isEmpty(logMessage)) {
+            throw new IllegalArgumentException("logMessage is empty");
+        }
+
+        // 예외처리
+        if (StringUtil.isEmpty(fullSearchStrategy)) {
+            throw new IllegalArgumentException("fullSearchStrategy is empty");
+        }
+
+        // (생략) self.masker.mask(log_message)
+
+        // 기존 클러스터와 로그 메시지(마스킹된)를 매칭
+         return drain.match(logMessage, fullSearchStrategy);
+    }
 }

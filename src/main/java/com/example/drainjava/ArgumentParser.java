@@ -2,12 +2,17 @@ package com.example.drainjava;
 
 import com.example.drainjava.builtins.FilePersistence;
 import com.example.drainjava.builtins.TemplateMiner;
+import com.example.drainjava.builtins.drain.LogCluster;
+import com.example.drainjava.common.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -112,18 +117,41 @@ public class ArgumentParser implements ApplicationRunner {
 
         // FILE 인자들 (로그데이터 파일들, Drain 입력데이터)
         List<String> logFIlePathList = args.getNonOptionArgs();
-        if (logFIlePathList.isEmpty() == false) {
-            for (String logFilePath :logFIlePathList) {
-                //
-            }
-        } else {
+        if (logFIlePathList.isEmpty() == true) {
             System.out.println("Error: FILE 인자 누락");
             return;
         }
 
-        // Drain
+        // 전체 프로세스 실행
         filePersistence.setFilePath(jsonPath);
         templateMiner.loadState();
+
+        for (String logFilePath :logFIlePathList) {
+
+            // 예외처리
+            if (StringUtil.isEmpty(logFilePath)) {
+                throw new IllegalArgumentException("logFilePath is empty");
+            }
+
+            // 확장자 체크
+            if (logFilePath.endsWith(".log") == false) {
+                throw new IllegalArgumentException("The file must have a .log extension.");
+            }
+
+            // 개별 (xxx.log) 로그 파일 처리
+            try (BufferedReader br = new BufferedReader(new FileReader(logFilePath))) {
+
+                String line;
+                // 한 줄씩
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    line = line.substring(line.indexOf(": ") + 2);
+                    LogCluster cluster = templateMiner.match(line, "never");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

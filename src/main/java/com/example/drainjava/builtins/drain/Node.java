@@ -1,6 +1,8 @@
 package com.example.drainjava.builtins.drain;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import java.util.Map;
  * @version 0.1
  * @since 2024-04-01 오전 10:33
  */
+@Getter
+@Setter
 public class Node {
 
     /** 자식 노드를 키로 매핑 */
