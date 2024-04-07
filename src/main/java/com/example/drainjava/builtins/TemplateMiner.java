@@ -356,7 +356,15 @@ public class TemplateMiner {
 
         // (생략) self.masker.mask(log_message)
 
-        // 기존 클러스터와 로그 메시지(마스킹된)를 매칭
-         return drain.match(logMessage, fullSearchStrategy);
+        // 경과 시간 측정
+        final LogCluster[] matchedCluster = new LogCluster[1];
+        drain.getProfiler().executeWithProfiling("match", () -> {
+            // 기존 클러스터와 로그 메시지(마스킹된)를 매칭
+            matchedCluster[0] = drain.match(logMessage, fullSearchStrategy);
+        });
+        // 보고서 출력
+        drain.getProfiler().report();
+
+        return matchedCluster[0];
     }
 }

@@ -62,13 +62,13 @@ public abstract class DrainBase {
     @SerializedName("clusters_counter")
     protected int clustersCounter;
 
-    /**  */
+    /** 노드 트리 */
     @SerializedName("root_node")
     protected Node rootNode = new Node();
 
-    /**  */
+    /** 실행시간 측정 (프로파일러 설정) */
     @SerializedName("profiler")
-    protected NullProfiler profiler = new NullProfiler();
+    protected Profiler profiler = new SimpleProfiler();
 
 
     public DrainBase() {

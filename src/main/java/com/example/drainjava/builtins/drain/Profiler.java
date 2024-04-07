@@ -26,8 +26,14 @@ public abstract class Profiler {
 
     /**
      * 주기적 보고
-     *
-     * @param periodSec 주기 (초 단위)
      */
-    public abstract void report(int periodSec);
+    public abstract void report();
+
+    /**
+     * 지정된 메소드에 대한 프로파일링 수행
+     *
+     * @param sectionName 섹션 이름
+     * @param method 실행할 메소드
+     */
+    public abstract void executeWithProfiling(String sectionName, Runnable method);
 }
