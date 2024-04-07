@@ -6,8 +6,10 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Drain Baseline
@@ -62,11 +64,11 @@ public abstract class DrainBase {
 
     /**  */
     @SerializedName("root_node")
-    protected Node rootNode;
+    protected Node rootNode = new Node();
 
     /**  */
     @SerializedName("profiler")
-    protected NullProfiler profiler;
+    protected NullProfiler profiler = new NullProfiler();
 
 
     public DrainBase() {
@@ -123,18 +125,20 @@ public abstract class DrainBase {
      * @param clusterIds 매치할 클러스터 ID 목록
      * @param tokens 로그 메시지 토큰 목록
      * @param simTh 유사도 임계값
-     * @param includeParams 템플릿 매개변수 포함 여부
+     * @param includeParams 유사도 임계값에 와일드카드 매개변수를 포함할지 여부
      * @return 가장 적합한 매치 클러스터, 매치되는 클러스터가 없는 경우 null
      */
-    public LogCluster fastMatch(Collection<Integer> clusterIds, List<String> tokens, double simTh, boolean includeParams) {
+    public LogCluster fastMatch(List<String> clusterIds, List<String> tokens, double simTh, boolean includeParams) {
 
+        // 일치하는 클러스터 초기화
         LogCluster matchCluster = null;
 
         double maxSim = -1;
         int maxParamCount = -1;
         LogCluster maxCluster = null;
 
-        for (Integer clusterId : clusterIds) {
+        // 클러스터 목록 순회
+        for (String clusterId : clusterIds) {
             LogCluster cluster = idToCluster.get(String.valueOf(clusterId));
 
             if (cluster == null) {
@@ -144,9 +148,12 @@ public abstract class DrainBase {
             double curSim = 0;
             int paramCount;
 
-//            curSim, paramCount = getSeqDistance(cluster.getLogTemplateTokens(), tokens, includeParams);
-            curSim = 0.75;
-            paramCount = 1;
+            // 클러스터와 로그 메시지 간의 유사도 및 매개변수 수 계산
+            Pair<Double, Integer> result = getSeqDistance(cluster.getLogTemplateTokens(), tokens, includeParams);
+            curSim = result.getFirst();
+            paramCount = result.getSecond();
+
+            // 최대 유사도 클러스터 업데이트
             if (curSim > maxSim || (curSim == maxSim && paramCount > maxParamCount)) {
                 maxSim = curSim;
                 maxParamCount = paramCount;
@@ -154,6 +161,7 @@ public abstract class DrainBase {
             }
         }
 
+        // 유사도 임계값 이상이면, 일치하는 클러스터로 설정
         if (maxSim >= simTh) {
             matchCluster = maxCluster;
         }
@@ -203,32 +211,6 @@ public abstract class DrainBase {
     }
 
     /**
-     * 노드 트리 출력
-     *
-     * @param file 출력할 파일
-     * @param maxClusters 출력할 클러스터의 최대 수
-     */
-    public void printTree(PrintStream file, int maxClusters) {}
-
-    /**
-     *
-     *
-     * @param tokens
-     * @param node
-     * @param depth
-     * @param file
-     * @param maxClusters
-     */
-    public void printNode(List<String> tokens, Node node, int depth, PrintStream file, int maxClusters) {}
-
-    /**
-     * 새로운 로그 메시지를 받아, 클러스터에 추가
-     *
-     * @param content 로그 메시지의 내용부분
-     */
-    private void addLogMessage(String content) {}
-
-    /**
      * 주어진 로그 메시지를 토큰으로 분할 <br>
      * extraDelimiters 사용 시, 추가 토큰 분할 수행
      *
@@ -268,7 +250,7 @@ public abstract class DrainBase {
         List<String> target = new ArrayList<>();
 
         // 현재 노드 get
-        Node curNode = this.rootNode.getKeyToChildNode().get(seqFirst);
+        Node curNode = this.rootNode.getKeyToChildNode().get(String.valueOf(seqFirst));
 
         // 같은 토큰 수를 가진 템플릿이 없을 때
         if (curNode == null) {
@@ -290,7 +272,7 @@ public abstract class DrainBase {
     private void appendClustersRecursive(Node node, List<String> idListToFill) {
 
         // 현재 노드의 클러스터 ID 추가
-        for (Integer clusterId : node.getClusterIds()) {
+        for (String clusterId : node.getClusterIds()) {
             idListToFill.add(String.valueOf(clusterId));
         }
 

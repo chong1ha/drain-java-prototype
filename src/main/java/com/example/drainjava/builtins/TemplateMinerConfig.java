@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -92,6 +93,13 @@ public class TemplateMinerConfig {
             this.depth = Integer.parseInt(drainSection.get("depth"));
             this.maxChildren = Integer.parseInt(drainSection.get("max_children"));
             this.maxClusters = Integer.parseInt(drainSection.get("max_clusters"));
+
+            String extraDelimitersStr = drainSection.get("extra_delimiters");
+            if (extraDelimitersStr != null && !extraDelimitersStr.isEmpty()) {
+                // 설정 파일에서 extra_delimiters 값은 쉼표로 구분된 문자열일 것으로 가정
+                String[] extraDelimitersArr = extraDelimitersStr.split(",");
+                this.extraDelimiters.addAll(Arrays.asList(extraDelimitersArr));
+            }
         }
 
         Profile.Section maskingSection = ini.get("MASKING");

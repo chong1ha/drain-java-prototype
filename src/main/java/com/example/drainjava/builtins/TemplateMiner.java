@@ -105,7 +105,11 @@ public class TemplateMiner {
             System.out.println("Log Template:");
             loadedDrain.getClusters().forEach((key, value) -> System.out.println(key + ": " + value));
 
-        } catch (IOException e) {
+            // loadedDrain 필드들을 drain 필드들로 설정
+            drain.setIdToCluster(loadedDrain.getIdToCluster());
+            drain.setClustersCounter(loadedDrain.getClustersCounter());
+            drain.setRootNode(loadedDrain.getRootNode());
+            } catch (IOException e) {
             log.error("Error loading saved state", e);
         }
     }
@@ -148,6 +152,36 @@ public class TemplateMiner {
      * 전처리 <br>
      *  : 바이트 배열 -> 문자열 -> 파싱 및 재구성 -> Drain 객체
      *
+     * <pre>
+     * log_cluster_depth
+     * max_node_depth
+     * sim_th
+     * max_children
+     * extra_delimiters
+     * max_clusters
+     * param_str
+     * parametrize_numeric_tokens
+     * root_node
+     *   - key_to_child_node
+     *      - [seq Length] (ex."7")
+     *          - key_to_child_node
+     *              - [first Token]
+     *                  - key_to_child_node
+     *                  - cluster_ids
+     *   - cluster_ids
+     * id_to_cluster
+     *   - _Cache__data
+     *      - [json://number]
+     *          - log_template_tokens
+     *              - [tokens]
+     *          - cluster_id
+     *          - size
+     *   - _Cache__currsize
+     *   - _Cache__maxsize
+     * LRUCache
+     * profiler
+     * </pre>
+     *
      * @param state JSON 형식의 상태를 담은 byte 배열
      * @return Drain 객체로 파싱된 상태
      */
@@ -163,9 +197,61 @@ public class TemplateMiner {
 
         // newJsonObject 에 값들 재구성
         JsonObject newJsonObject = new JsonObject();
-        // log_cluster_depth와 max_node_depth 속성 추가
+        // ( log_cluster_depth, max_node_depth, sim_th, max_children )
         newJsonObject.addProperty("log_cluster_depth", jsonObject.get("log_cluster_depth").getAsInt());
         newJsonObject.addProperty("max_node_depth", jsonObject.get("max_node_depth").getAsInt());
+        newJsonObject.addProperty("sim_th", jsonObject.get("sim_th").getAsDouble());
+        newJsonObject.addProperty("max_children", jsonObject.get("max_children").getAsInt());
+        newJsonObject.addProperty("max_clusters", jsonObject.get("max_clusters").getAsInt());
+        newJsonObject.addProperty("param_str", jsonObject.get("param_str").getAsString());
+        newJsonObject.addProperty("parametrize_numeric_tokens", jsonObject.get("parametrize_numeric_tokens").getAsBoolean());
+
+        // root_node
+        JsonObject rootNode = jsonObject.getAsJsonObject("root_node");
+        JsonObject keyToChildNode = rootNode.getAsJsonObject("key_to_child_node");
+        JsonObject newRootNodeObject = new JsonObject();
+        for (String key : rootNode.keySet()) {
+            if (!key.equals("py/object")) {
+                newRootNodeObject.add(key, rootNode.get(key));
+            }
+        }
+        JsonObject newKeyToChildNodeObject = new JsonObject();
+        // Length Node
+        for (String key : keyToChildNode.keySet()) {
+            JsonObject childNode = keyToChildNode.getAsJsonObject(key);
+            JsonObject newChildNode = new JsonObject();
+            for (String childKey : childNode.keySet()) {
+                if (!childKey.equals("py/object")) {
+                    if (childNode.get(childKey).isJsonObject()) {
+                        JsonObject childObject = childNode.getAsJsonObject(childKey);
+                        JsonObject newChildObject = new JsonObject();
+                        for (String innerKey : childObject.keySet()) {
+                            if (!innerKey.equals("py/object")) {
+                                JsonElement element = childObject.get(innerKey);
+                                if (element.isJsonObject()) {
+                                    JsonObject innerObject = new JsonObject();
+                                    JsonObject originalInnerObject = element.getAsJsonObject();
+                                    for (String innerInnerKey : originalInnerObject.keySet()) {
+                                        if (!innerInnerKey.equals("py/object")) {
+                                            innerObject.add(innerInnerKey, originalInnerObject.get(innerInnerKey));
+                                        }
+                                    }
+                                    newChildObject.add(innerKey, innerObject);
+                                } else {
+                                    newChildObject.add(innerKey, element);
+                                }
+                            }
+                        }
+                        newChildNode.add(childKey, newChildObject);
+                    } else {
+                        newChildNode.add(childKey, childNode.get(childKey));
+                    }
+                }
+            }
+            newKeyToChildNodeObject.add(key, newChildNode);
+        }
+        newRootNodeObject.add("key_to_child_node", newKeyToChildNodeObject);
+        newJsonObject.add("root_node", newRootNodeObject);
 
         // id_to_cluster 데이터 파싱을 위한 JsonObject 생성
         JsonObject idToClusterObject = new JsonObject();

@@ -1,6 +1,7 @@
 package com.example.drainjava.builtins.drain;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @version 0.1
  * @since 2024-04-01 오전 10:01
  */
+@Getter
 public class LogCluster {
 
     /** 로그 템플릿 토큰 */

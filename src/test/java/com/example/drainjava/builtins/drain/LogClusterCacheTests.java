@@ -29,7 +29,7 @@ public class LogClusterCacheTests {
             int clusterId = 1;
             String key = "json://1";
             String[] valueArr = {
-                    "PacketResponder","<:NUM:>","for","block","blk","<:*:>","terminating"
+                    "PacketResponder","<*>","for","block","blk","<*>","terminating"
             };
             List<String> log_template_tokens = new ArrayList<>(Arrays.asList(valueArr));
             LogCluster value = new LogCluster(log_template_tokens, clusterId);

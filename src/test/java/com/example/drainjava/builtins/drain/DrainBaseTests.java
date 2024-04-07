@@ -49,9 +49,11 @@ public class DrainBaseTests {
     public void getContentAsTokensTest() throws Exception {
         try {
             //given
-            String content = " Parametrize_numeric_tokens:NN whether to treat!";
-            List<String> expectedTokens = Arrays.asList("Parametrize_numeric_tokens", "NN", "whether", "to", "treat!");
-            drain.setExtraDelimiters(Collections.singletonList(":")); // 추가 구분 기호
+            String content = "PacketResponder 1 for block blk_38865049064139660 terminating";
+            List<String> expectedTokens = Arrays.asList(
+                    "PacketResponder", "1", "for", "block", "blk", "38865049064139660", "terminating"
+            );
+            drain.setExtraDelimiters(Collections.singletonList("_")); // 추가 구분 기호
 
             //when
             List<String> actualTokens = drain.getContentAsTokens(content);
@@ -69,20 +71,20 @@ public class DrainBaseTests {
         try {
             //given
             List<String> seq1 =new ArrayList<>(Arrays.asList(
-                    "Receiving", "block", "blk", "<:*:>", "src:", "/<:IP:>:<:NUM:>", "dest:", "/<:IP:>:<:NUM:>"
+                    "Receiving", "block", "blk", "<*>", "src:", "<*>", "dest:", "<*>"
             )); // 로그 템플릿
 
             List<String> seq2 =new ArrayList<>(Arrays.asList(
                     "Receiving", "block", "blk", "-295306975763175640", "src:", "/10.250.9.207:53270", "dest:", "/10.250.9.207:50010"
             )); // 들어오는 새로운 데이터
 
-            Double expectedRetVal = 0.75;
-            Integer expectedParamCount = 1;
+            Double expectedRetVal = 1.0;
+            Integer expectedParamCount = 3;
 
             //when
             Pair<Double, Integer> result =  drain.getSeqDistance(seq1, seq2, true);
-            Double actualRetVal = result.getFirst();
-            Integer actualParamCount = result.getSecond();
+            Double actualRetVal = result.getFirst();  // 8
+            Integer actualParamCount = result.getSecond();  // 8
 
             //then
             assertEquals(expectedRetVal, actualRetVal);

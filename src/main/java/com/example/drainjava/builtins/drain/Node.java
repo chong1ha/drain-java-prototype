@@ -27,7 +27,7 @@ public class Node {
 
     /** clusterId 리스트 */
     @SerializedName("cluster_ids")
-    private List<Integer> clusterIds;
+    private List<String> clusterIds;
 
     public Node() {
         this.keyToChildNode = new HashMap<>();

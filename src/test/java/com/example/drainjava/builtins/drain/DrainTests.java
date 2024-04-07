@@ -11,6 +11,18 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest
 public class DrainTests {
+    
+    @Test
+    @DisplayName("FullSearch 테스트")
+    public void fullSearchTest() throws Exception {
+        try {
+            //given
+            
+            //when
+            //then
+        } catch (Exception e) {
+        }
+    }
 
     @Test
     @DisplayName("TreeSearch 테스트")

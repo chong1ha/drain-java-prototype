@@ -92,11 +92,11 @@ public class ArgumentParser implements ApplicationRunner {
         }
 
         // 옵션 6. 상태정보 저장 및 로드, JSON 파일
-        String jsonPath = "";
+        String binFilePath = "";
         if (args.containsOption("j") || args.containsOption("-json")) {
             List<String> optionValues = args.getOptionValues("j") ;
             if (optionValues != null && !optionValues.isEmpty()) {
-                jsonPath = optionValues.get(0);
+                binFilePath = optionValues.get(0);
             }
         }
 
@@ -123,7 +123,7 @@ public class ArgumentParser implements ApplicationRunner {
         }
 
         // 전체 프로세스 실행
-        filePersistence.setFilePath(jsonPath);
+        filePersistence.setFilePath(binFilePath);
         templateMiner.loadState();
 
         for (String logFilePath :logFIlePathList) {
@@ -146,7 +146,16 @@ public class ArgumentParser implements ApplicationRunner {
                 while ((line = br.readLine()) != null) {
                     line = line.trim();
                     line = line.substring(line.indexOf(": ") + 2);
+                    System.out.println("----------------------------");
+                    // 매칭
                     LogCluster cluster = templateMiner.match(line, "never");
+
+                    System.out.println("# INPUT: " + line);
+                    if (cluster != null) {
+                        System.out.println("# OUTPUT: " + cluster.getTemplate());
+                    } else {
+                        System.out.println("# OUTPUT: No matching template found.");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
