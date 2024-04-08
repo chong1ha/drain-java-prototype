@@ -49,8 +49,10 @@ public class TemplateMinerTests {
     public void matchTest() throws Exception {
         // init
         try {
-            String binFilePath = "/Volumes/LOCAL/drain_java_scripts/HDFS_2k_snapshot.bin";
+            String binFilePath = "H:\\drain_java_scripts\\HDFS_2k_snapshot.bin";
+            String iniFilePath = "H:\\drain_java_scripts\\drain3.ini";
             filePersistence.setFilePath(binFilePath);
+            templateMiner.init(iniFilePath);
             templateMiner.loadState();
         } catch (Exception e) {
            e.printStackTrace();

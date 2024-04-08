@@ -37,22 +37,21 @@ public class TemplateMiner {
         this.abstractPersistenceHandler = abstractPersistenceHandler;
         this.templateMinerConfig = templateMinerConfig;
         this.drain = drain;
-
-        try {
-            // 초기화 (Drain 설정)
-            init();
-        } catch (IOException e) {
-            log.error("Config file not found: drain3.ini", e);
-        }
     }
 
     /**
      * 초기화
+     *
+     * @param configFilePath 스냅샷 바이너리 파일 경로
      */
-    private void init() throws IOException {
+    public void init(String configFilePath) throws IOException {
 
-        // TemplateMinerConfig 초기화
-        templateMinerConfig.load("src/main/ext/drain/drain3.ini");
+        try {
+            // TemplateMinerConfig 초기화
+            templateMinerConfig.load(configFilePath);
+        } catch (IOException e) {
+            log.error("Config file not found: drain3.ini", e);
+        }
 
         // 엔진값 유효성 검사 (Drain 또는 JaccardDrain)
         if (EngineType.isValid(templateMinerConfig.getEngine()) == false) {

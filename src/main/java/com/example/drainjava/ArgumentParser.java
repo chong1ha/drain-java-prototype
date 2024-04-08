@@ -41,6 +41,9 @@ public class ArgumentParser implements ApplicationRunner {
 
         // 옵션 처리
         processOptions(args);
+
+        // 정상 종료
+        System.exit(0);
     }
 
     /**
@@ -127,6 +130,18 @@ public class ArgumentParser implements ApplicationRunner {
             return;
         }
 
+        // 옵션 9. 드레인 설정파일 (.ini)
+        String drainIniFilePath = "";
+        if (args.containsOption("e")) {
+            drainIniFilePath = args.getOptionValues("e").get(0);
+
+            // 예외처리
+            if (StringUtil.isEmpty(drainIniFilePath)) {
+                System.out.println("Error: drain3.ini 파일이 비어있습니다.");
+                return;
+            }
+        }
+
         // FILE 인자들 (로그데이터 파일들, Drain 입력데이터)
         List<String> logFIlePathList = args.getNonOptionArgs();
         if (logFIlePathList.isEmpty() == true) {
@@ -137,6 +152,7 @@ public class ArgumentParser implements ApplicationRunner {
 
         // 전체 프로세스 실행
         filePersistence.setFilePath(binFilePath);
+        templateMiner.init(drainIniFilePath);
         templateMiner.loadState();
 
         for (String logFilePath : logFIlePathList) {
@@ -191,6 +207,7 @@ public class ArgumentParser implements ApplicationRunner {
                 "  -l, --log-format\t\tuse formatting logs used for preprocessing\n" +
                 "  -i, --infer\t\tInference Mode\n" +
                 "  -t, --train\t\tTraining Mode\n" +
+                "  -e, --log-format\t\tdrain ini file path\n" +
                 "  -f, --file\t\tspecify the bin file path for loading/storing the model state when using file option (inference mode:Loading / training:Storing)\n" +
                 "  -k, --kafka\t\tuse Kafka for loading/storing the model state (inference mode:Loading / training:Storing)\n" +
                 "  -r, --redis\t\tuse Redis for loading/storing the model state (inference mode:Loading / training:Storing)\n" +

@@ -26,14 +26,16 @@ public class ArgumentParserTests {
             String[] inputArgs = {
                     "--i", // 추론모드로 설정
                     "--s", // 스냅샷 활성화
-                    "--f=/Volumes/LOCAL/drain_java_scripts/HDFS_2k_snapshot.bin",   // 스냅샷 바이너리 파일 경로
-                    "/Volumes/LOCAL/drain_java_scripts/2k_dataset/HDFS/HDFS_2k.log" // 로그 데이터 파일 경로
+                    "--e=H:\\drain_java_scripts\\drain3.ini",
+                    "--f=H:\\drain_java_scripts\\HDFS_2k_snapshot.bin",   // 스냅샷 바이너리 파일 경로
+                    "H:\\drain_java_scripts\\2k_dataset\\HDFS\\HDFS_2k.log" // 로그 데이터 파일 경로
             };
             ApplicationArguments args = new DefaultApplicationArguments(inputArgs);
 
             // 프로그램 실행
             argumentParser.run(args);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -26,13 +26,13 @@ Input HDFS_2k Log ([Loghub-2.0](https://github.com/logpai/loghub-2.0)):
 Program Arguments:
 
 ```
-Usage: java -jar xx.jar [-hv] [--verbose] [-it] [-l=LOG_FORMAT_STRING] [-f=SNAPSHOT_BIN_PATH] [-r=REDIS_PATH] [-k=KAFKA TOPIC PATH] FILE
+Usage: java -jar xx.jar [-hv] [--verbose] [-it] [-e=DRAIN_INI_FILE_PATH] [-l=LOG_FORMAT_STRING] [-f=SNAPSHOT_BIN_PATH] [-r=REDIS_PATH] [-k=KAFKA TOPIC PATH] FILE
 ```
 
 Currently Available Arguments: 
 
 ```
-Usage: java -jar xx.jar [-hv] [-i] [-f=SNAPSHOT_BIN_PATH] FILE"
+Usage: java -jar xx.jar [-hv] [-i] [-e=DRAIN_INI_FILE_PATH] [-f=SNAPSHOT_BIN_PATH] FILE"
 ```
 
 Drain-Java(Inference Mode) loads snapshot(bin file):

@@ -27,13 +27,21 @@
 
 		<!-- 의존성 라이브러리 버전 별도 관리 -->
 		<log4j2.v>3.0.0</log4j2.v>
+		<ini4j.v>0.5.4</ini4j.v>
+		<gson.v>2.10.1</gson.v>
 	</properties>
 
 	<!-- Add typical dependencies for a web application -->
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- lombok -->
@@ -52,13 +60,13 @@
 		<dependency>
 			<groupId>org.ini4j</groupId>
 			<artifactId>ini4j</artifactId>
-			<version>0.5.4</version>
+			<version>${ini4j.v}</version>
 		</dependency>
 		<!-- GSON -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.10.1</version>
+			<version>${gson.v}</version>
 		</dependency>
 
 		<dependency>
@@ -71,22 +79,6 @@
 	<build>
 		<plugins>
 			<!-- 애플리케이션 빌드를 위해 필요한 플러그인 설정  -->
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<image>
-						<builder>paketobuildpacks/builder-jammy-base:latest</builder>
-					</image>
-					<excludes>
-						<!-- lombok 제외 -->
-						<exclude>
-							<groupId>org.project-lombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
 
 			<!-- 자바 버전 및 컴파일 옵션 지정 -->
 			<plugin>
@@ -150,6 +142,60 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+
+			<!-- 의존성 관리 (별도 lib 에 복사)  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${deploy.target.dir}/lib
+							</outputDirectory>
+
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<!--
+                                lombok과 사용하지 않는 jar파일들은 복사하지 않음
+                                lombok은 프로그램 개발시에만 필요함
+                            -->
+							<excludeArtifactIds>
+								lombok
+							</excludeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- resource 복사  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-workflow</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/src/main/ext</directory>
+								</resource>
+							</resources>
+							<outputDirectory>${deploy.target.dir}/ext</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
