@@ -77,6 +77,7 @@ public class TemplateMinerTests {
             assertEquals(expectedLogCluster.getClusterId(), actualLogCluster.getClusterId());
             assertEquals(size, actualLogCluster.getSize());
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
