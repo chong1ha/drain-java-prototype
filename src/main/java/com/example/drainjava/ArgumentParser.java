@@ -3,6 +3,8 @@ package com.example.drainjava;
 import com.example.drainjava.builtins.FilePersistence;
 import com.example.drainjava.builtins.TemplateMiner;
 import com.example.drainjava.builtins.drain.LogCluster;
+import com.example.drainjava.common.CommonUtil;
+import com.example.drainjava.common.Pair;
 import com.example.drainjava.common.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,10 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -29,11 +34,13 @@ public class ArgumentParser implements ApplicationRunner {
 
     private final TemplateMiner templateMiner;
     private final FilePersistence filePersistence;
+    private final CommonUtil commonUtil;
 
     @Autowired
-    public ArgumentParser(TemplateMiner templateMiner, FilePersistence filePersistence) {
+    public ArgumentParser(TemplateMiner templateMiner, FilePersistence filePersistence, CommonUtil commonUtil) {
         this.templateMiner = templateMiner;
         this.filePersistence = filePersistence;
+        this.commonUtil = commonUtil;
     }
 
     @Override
@@ -73,8 +80,15 @@ public class ArgumentParser implements ApplicationRunner {
         }
 
         // 옵션 4. Drain 수행 전, 로그 포맷을 기준으로 해당 로그메시지 전처리
+        List<String> headers = new ArrayList<>();
+        Pattern regex = null;
         if (args.containsOption("l") || args.containsOption("-log-format")) {
-            return;
+            List<String> optionValues = args.getOptionValues("l");
+            String logFormat = optionValues.get(0);
+
+            Pair<Pattern, List<String>> result = commonUtil.generateLogFormatRegex(logFormat, headers);
+            regex = result.getFirst();
+            headers = result.getSecond();
         }
 
         // 스냅샷 기능이 활성화 상태라면, j, k, r 중 하나라도 선택되어야 함
@@ -173,8 +187,18 @@ public class ArgumentParser implements ApplicationRunner {
                 String line;
                 // 한 줄씩
                 while ((line = br.readLine()) != null) {
+
                     line = line.trim();
-                    line = line.substring(line.indexOf(": ") + 2);
+
+                    if (regex != null) {
+                        Matcher matcher = regex.matcher(line);
+                        if (matcher.find()) {
+                            // "Content" 그룹에서 로그 메시지 추출
+                            line = matcher.group("Content");
+                        }
+                    } else {
+                        line = line.substring(line.indexOf(": ") + 2);
+                    }
                     System.out.println("----------------------------");
                     // 매칭
                     LogCluster cluster = templateMiner.match(line, "never");

@@ -14,9 +14,9 @@ Read more information about Drain from the following paper:
 
 Java 8 is required to run drain-java.
 
-**Example:**
+**Example: ([Loghub-2.0, HDFS_2k Log](https://github.com/logpai/loghub-2.0))**
 
-Input HDFS_2k Log ([Loghub-2.0](https://github.com/logpai/loghub-2.0)):
+Input:
 
 ```
 081109 203615 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_38865049064139660 terminating
@@ -32,7 +32,7 @@ Usage: java -jar xx.jar [-hv] [--verbose] [-it] [-e=DRAIN_INI_FILE_PATH] [-l=LOG
 Currently Available Arguments: 
 
 ```
-Usage: java -jar xx.jar [-hv] [-i] [-e=DRAIN_INI_FILE_PATH] [-f=SNAPSHOT_BIN_PATH] FILE"
+Usage: java -jar xx.jar [-hv] [-i] [-l=LOG_FORMAT_STRING] [-e=DRAIN_INI_FILE_PATH] [-f=SNAPSHOT_BIN_PATH] FILE"
 ```
 
 Drain-Java(Inference Mode) loads snapshot(bin file):
@@ -133,3 +133,17 @@ template_miner.profiler.report(0)
 # 스냅샷 저장
 template_miner.save_state(snapshot_reason="HDFS_2k.log")
 ```
+
+## Essential
+
+Log Formatting to handle the format of various log messages, including LogHub
+
+* Example: Zookeeper_2k.log
+
+```
+$ java -jar xxx.jar --i --e="/scripts/drain3.ini" --l="<Date> <Time> - <Level> [<Node>:<Component>@<Id>] - <Content>" --f="/scripts/HDFS_2k_snapshot.bin" "/scripts/2k_dataset/Zookeeper/Zookeeper_2k.log"
+```
+
+1. FILE factor can handle multiple log files, but the same log format and ini file and snapshot file are shared and used
+
+2. Inference mode (optional i) only
