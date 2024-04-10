@@ -62,6 +62,7 @@ public class TemplateMinerTests {
             //given
             String logMessage = "PacketResponder 1 for block blk_38865049064139660 terminating";
             String fullSearchStrategy = "never";
+            String sectionName = "Section";
 
             int clusterId = 1;
             int size = 311;
@@ -72,7 +73,7 @@ public class TemplateMinerTests {
             LogCluster expectedLogCluster = new LogCluster(log_template_tokens, clusterId);
 
             //when
-            LogCluster actualLogCluster = templateMiner.match(logMessage, fullSearchStrategy);
+            LogCluster actualLogCluster = templateMiner.match(logMessage, fullSearchStrategy, sectionName);
 
             //then
             assertEquals(expectedLogCluster.getLogTemplateTokens(), actualLogCluster.getLogTemplateTokens());

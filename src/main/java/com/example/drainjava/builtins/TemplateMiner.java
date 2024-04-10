@@ -341,7 +341,7 @@ public class TemplateMiner {
      * @param fullSearchStrategy 전체 클러스터 검색을 수행할 때의 전략
      * @return LogCluster
      */
-    public LogCluster match(String logMessage, String fullSearchStrategy) {
+    public LogCluster match(String logMessage, String fullSearchStrategy, String sectionName) {
 
         // 예외처리
         if (StringUtil.isEmpty(logMessage)) {
@@ -357,7 +357,7 @@ public class TemplateMiner {
 
         // 경과 시간 측정
         final LogCluster[] matchedCluster = new LogCluster[1];
-        drain.getProfiler().executeWithProfiling("match", () -> {
+        drain.getProfiler().executeWithProfiling(sectionName, () -> {
             // 기존 클러스터와 로그 메시지(마스킹된)를 매칭
             matchedCluster[0] = drain.match(logMessage, fullSearchStrategy);
         });

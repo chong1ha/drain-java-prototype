@@ -29,6 +29,7 @@
 		<log4j2.v>3.0.0</log4j2.v>
 		<ini4j.v>0.5.4</ini4j.v>
 		<gson.v>2.10.1</gson.v>
+		<common.v>2.15.1</common.v>
 	</properties>
 
 	<!-- Add typical dependencies for a web application -->
@@ -67,6 +68,12 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.v}</version>
+		</dependency>
+		<!-- Apache Commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${common.v}</version>
 		</dependency>
 
 		<dependency>
