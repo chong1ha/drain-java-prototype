@@ -181,6 +181,7 @@ public class ArgumentParser implements ApplicationRunner {
                 throw new IllegalArgumentException("The file must have a .log extension.");
             }
 
+            int noTemplateCount = 0;
             // 개별 (xxx.log) 로그 파일 처리
             try (BufferedReader br = new BufferedReader(new FileReader(logFilePath))) {
 
@@ -208,11 +209,14 @@ public class ArgumentParser implements ApplicationRunner {
                         System.out.println("# OUTPUT: " + cluster.getTemplate());
                     } else {
                         System.out.println("# OUTPUT: No matching template found.");
+                        noTemplateCount += 1;
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println("============================");
+            System.out.printf("No matching template: %d", noTemplateCount);
         }
     }
 
