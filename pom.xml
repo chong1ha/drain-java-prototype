@@ -69,12 +69,6 @@
 			<artifactId>gson</artifactId>
 			<version>${gson.v}</version>
 		</dependency>
-		<!-- Apache Commons-io -->
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${common.v}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

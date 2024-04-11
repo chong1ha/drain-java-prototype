@@ -7,7 +7,6 @@ import com.example.drainjava.common.CommonUtil;
 import com.example.drainjava.common.Pair;
 import com.example.drainjava.common.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -183,10 +182,6 @@ public class ArgumentParser implements ApplicationRunner {
                 throw new IllegalArgumentException("The file must have a .log extension.");
             }
 
-            // 파일명 추출 (프로파일러의 섹션이름으로 활용)
-            fileCount += 1;
-            String logFileName = FilenameUtils.getBaseName(logFilePath) + "-" + fileCount;
-
             int noTemplateCount = 0;
             // 개별 (xxx.log) 로그 파일 처리
             try (BufferedReader br = new BufferedReader(new FileReader(logFilePath))) {
@@ -208,7 +203,7 @@ public class ArgumentParser implements ApplicationRunner {
                     }
                     System.out.println("----------------------------");
                     // 매칭
-                    LogCluster cluster = templateMiner.match(line, "never", logFileName);
+                    LogCluster cluster = templateMiner.match(line, "never");
 
                     System.out.println("# INPUT: " + line);
                     if (cluster != null) {
