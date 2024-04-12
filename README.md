@@ -31,8 +31,19 @@ Usage: java -jar xx.jar [-hv] [--verbose] [-it] [-e=DRAIN_INI_FILE_PATH] [-l=LOG
 
 Currently Available Arguments: 
 
+* Inference mode (optional i) only
+
 ```
 Usage: java -jar xx.jar [-hv] [-i] [-l=LOG_FORMAT_STRING] [-e=DRAIN_INI_FILE_PATH] [-f=SNAPSHOT_BIN_PATH] FILE"
+```
+
+Log Format
+
+* Use full log as input unless you specify a log format
+* When specified, use Content as input
+
+```
+"<Date> <Time> <Pid> <Level> <Component>: <Content>"
 ```
 
 Drain-Java(Inference Mode) loads snapshot(bin file):
@@ -58,7 +69,19 @@ Drain-Java(Inference Mode) loads snapshot(bin file):
 ----------------------------
 ```
 
-Some Program output (Matching):
+Some Program output I (Matching):
+
+```
+// 경과 시간 측정
+final LogCluster[] matchedCluster = new LogCluster[1];
+drain.getProfiler().executeWithProfiling(sectionName, () -> {
+    // 기존 클러스터와 로그 메시지(마스킹된)를 매칭
+    matchedCluster[0] = drain.match(logMessage, fullSearchStrategy);
+});
+
+// 보고서 출력
+drain.getProfiler().report();
+```
 
 ```
 ----------------------------
@@ -72,66 +95,85 @@ Section 'match' took 0.00007120 seconds (Total: 0.00265210 seconds, CallCount: 1
 ----------------------------
 ```
 
+Some Program output II (Matching):
+
+```
+long startTime = System.currentTimeMillis();
+
+for (String logFilePath : logFIlePathList) {
+}
+
+log.info("Execution time: " + (System.currentTimeMillis() - startTime) + " milliseconds");
+```
+
+```
+2024.04.12 23:46:06.355 [main] [INFO] c.e.d.ArgumentParser - Execution time: 190 milliseconds
+```
 
 ### Extract Snapshot bin file
 
 Refer to the applicable [Drain project](https://github.com/logpai/Drain3)
 
 ```
-import json
-import os
-import sys
-import time
+def extract(file_path, log_format, snapshot_file_path, sim_th, depth):
 
-from drain3 import TemplateMiner
-from drain3.template_miner_config import TemplateMinerConfig
-from drain3.file_persistence import FilePersistence
+    # drain.ini 업데이트
+    update_ini_file('drain3.ini', 'DRAIN', 'sim_th', sim_th)
+    update_ini_file('drain3.ini', 'DRAIN', 'depth', depth)
+    update_masking_section('drain3.ini')
 
-# 스냅샷 파일 경로 설정
-snapshot_file_path = "/content/HDFS_2k_snapshot_without.bin"
+    # 파일 기반 Persistence Handler 구성
+    persistence_handler = FilePersistence(snapshot_file_path)
 
-# 파일 기반 Persistence Handler 구성
-persistence_handler = FilePersistence(snapshot_file_path)
+    # drain3 파라미터 설정 로드
+    config = TemplateMinerConfig()
+    config.load("drain3.ini")
+    config.profiling_enabled = True
 
-# drain3 파라미터 설정 로드
-config = TemplateMinerConfig()
-config.load("drain3.ini")
-config.profiling_enabled = True
+    if not os.path.exists(snapshot_file_path):
+        print("스냅샷 파일 존재 X")
 
-if not os.path.exists(snapshot_file_path):
-    print("스냅샷 파일 존재 X")
+    # TemplateMiner 인스턴스 생성 시 Persistence Handler 전달
+    template_miner = TemplateMiner(persistence_handler, config=config)
 
-# TemplateMiner 인스턴스 생성 시 Persistence Handler 전달
-template_miner = TemplateMiner(persistence_handler, config=config)
+    # 로그 파일 처리 함수
+    def process_log_file(file_path, log_format):
+        line_count = 0
 
-# 로그 파일 처리 함수
-def process_log_file(file_path):
-    line_count = 0
-    with open(file_path) as f:
-        lines = f.readlines()
+        headers, regex = generate_logformat_regex(log_format)
 
-    for line in lines:
-        line = line.rstrip()
-        line = line.partition(": ")[2]
-        result = template_miner.add_log_message(line)
-        line_count += 1
-        if result["change_type"] != "none":
-            result_json = json.dumps(result)
-            # print(f"Input ({line_count}): {line}")
-            # print(f"Result: {result_json}")
+        with open(file_path) as f:
+            lines = f.readlines()
 
-# 첫 번째 로그 파일(event.log) 처리
-print("Processing event.log...")
-process_log_file("HDFS_2k.log")
+        for line in lines:
+            try:
+                # only Content
+                match = regex.search(line.strip())
+                line = match.group("Content")
+                print(line)
+            except Exception as e:
+                pass
 
-sorted_clusters = sorted(template_miner.drain.clusters, key=lambda it: it.size, reverse=True)
-for cluster in sorted_clusters:
-    print(cluster)
+            result = template_miner.add_log_message(line)
+            line_count += 1
+            if result["change_type"] != "none":
+                result_json = json.dumps(result)
+                # print(f"Input ({line_count}): {line}")
+                # print(f"Result: {result_json}")
 
-template_miner.profiler.report(0)
 
-# 스냅샷 저장
-template_miner.save_state(snapshot_reason="HDFS_2k.log")
+    # 첫 번째 로그 파일(event.log) 처리
+    print("Processing event.log...")
+    process_log_file(file_path, log_format)
+
+    sorted_clusters = sorted(template_miner.drain.clusters, key=lambda it: it.size, reverse=True)
+    for cluster in sorted_clusters:
+        print(cluster)
+
+    template_miner.profiler.report(0)
+
+    # 스냅샷 저장
+    template_miner.save_state(snapshot_reason="log")
 ```
 
 ## Essential
@@ -143,7 +185,3 @@ Log Formatting to handle the format of various log messages, including LogHub
 ```
 $ java -jar xxx.jar --i --e="/scripts/drain3.ini" --l="<Date> <Time> - <Level> [<Node>:<Component>@<Id>] - <Content>" --f="/scripts/HDFS_2k_snapshot.bin" "/scripts/2k_dataset/Zookeeper/Zookeeper_2k.log"
 ```
-
-1. FILE factor can handle multiple log files, but the same log format and ini file and snapshot file are shared and used
-
-2. Inference mode (optional i) only
