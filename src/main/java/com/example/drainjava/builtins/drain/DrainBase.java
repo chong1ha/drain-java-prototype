@@ -68,7 +68,7 @@ public abstract class DrainBase {
 
     /** 실행시간 측정 (프로파일러 설정) */
     @SerializedName("profiler")
-    protected Profiler profiler = new SimpleProfiler();
+    protected Profiler profiler = new NullProfiler();
 
 
     public DrainBase() {

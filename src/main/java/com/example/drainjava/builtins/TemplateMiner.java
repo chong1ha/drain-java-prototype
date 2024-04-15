@@ -66,6 +66,7 @@ public class TemplateMiner {
         String param_str = stringBuilder.toString();
 
         drain.setDepth(templateMinerConfig.getDepth());
+        drain.setMaxNodeDepth(templateMinerConfig.getDepth() - 2);
         drain.setSimTh(templateMinerConfig.getSimTh());
         drain.setMaxChildren(templateMinerConfig.getMaxChildren());
         drain.setMaxClusters(templateMinerConfig.getMaxClusters());

@@ -2,7 +2,6 @@ package com.example.drainjava;
 
 import com.example.drainjava.builtins.FilePersistence;
 import com.example.drainjava.builtins.TemplateMiner;
-import com.example.drainjava.builtins.drain.LogCluster;
 import com.example.drainjava.common.CommonUtil;
 import com.example.drainjava.common.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
@@ -222,15 +221,9 @@ public class ArgumentParser implements ApplicationRunner {
                             // "Content" 그룹에서 로그 메시지 추출
                             line = matcher.group("Content");
                         }
-                    } else {
-                        line = line.substring(line.indexOf(": ") + 2);
                     }
                     // 매칭
-                    LogCluster cluster = templateMiner.match(line, "never");
-
-                    if (cluster == null) {
-
-                    }
+                    templateMiner.match(line, "never");
                 }
             } catch (IOException e) {
                 log.error("Error reading log file: " + logFilePath, e);

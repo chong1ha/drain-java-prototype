@@ -185,3 +185,5 @@ Log Formatting to handle the format of various log messages, including LogHub
 ```
 $ java -jar xxx.jar --i --e="/scripts/drain3.ini" --l="<Date> <Time> - <Level> [<Node>:<Component>@<Id>] - <Content>" --f="/scripts/HDFS_2k_snapshot.bin" "/scripts/2k_dataset/Zookeeper/Zookeeper_2k.log"
 ```
+
+Download Loghub: [Full Log Dataset](https://github.com/logpai/loghub)
