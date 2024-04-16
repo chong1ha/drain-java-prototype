@@ -1,8 +1,8 @@
 package com.example.drainjava;
 
-import com.example.drainjava.builtins.FilePersistence;
-import com.example.drainjava.builtins.TemplateMiner;
-import com.example.drainjava.common.CommonUtil;
+import com.example.drainjava.drain.FilePersistence;
+import com.example.drainjava.drain.LogCluster;
+import com.example.drainjava.common.util.CommonUtil;
 import com.example.drainjava.common.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +33,11 @@ public class ArgumentParser implements ApplicationRunner {
 
     private final TemplateMiner templateMiner;
     private final FilePersistence filePersistence;
-    private final CommonUtil commonUtil;
 
     @Autowired
-    public ArgumentParser(TemplateMiner templateMiner, FilePersistence filePersistence, CommonUtil commonUtil) {
+    public ArgumentParser(TemplateMiner templateMiner, FilePersistence filePersistence) {
         this.templateMiner = templateMiner;
         this.filePersistence = filePersistence;
-        this.commonUtil = commonUtil;
     }
 
     @Override
@@ -91,7 +89,7 @@ public class ArgumentParser implements ApplicationRunner {
                 String logFormat = logFormatOption.get();
 
                 // 로그 포맷 - 정규표현식 생성
-                regex = commonUtil.generateLogFormatRegex(logFormat, new ArrayList<>()).getFirst();
+                regex = CommonUtil.generateLogFormatRegex(logFormat, new ArrayList<>()).getFirst();
             }
         }
 
@@ -117,7 +115,7 @@ public class ArgumentParser implements ApplicationRunner {
 
 
         // 옵션 5. 상태정보 저장 및 로드, JSON 파일
-        String binFilePath = "";
+        String templateFilePath = "";
         if (args.containsOption("f") || args.containsOption("-file")) {
 
             Optional<String> binFilePathOption = Optional.ofNullable(
@@ -128,7 +126,7 @@ public class ArgumentParser implements ApplicationRunner {
                 log.warn("ARGS: Missing Snapshot Binary File");
                 return;
             }
-            binFilePath = binFilePathOption.get();
+            templateFilePath = binFilePathOption.get();
         }
 
 
@@ -162,7 +160,7 @@ public class ArgumentParser implements ApplicationRunner {
 
 
         // 옵션 9. 드레인 설정파일 (.ini)
-        String drainIniFilePath = "";
+        String configFilePath = "";
         if (args.containsOption("e") || args.containsOption("-env")) {
 
             Optional<String> drainIniOption = Optional.ofNullable(
@@ -173,7 +171,7 @@ public class ArgumentParser implements ApplicationRunner {
                 log.warn("ARGS: Missing Environment ini File");
                 return;
             }
-            drainIniFilePath = drainIniOption.get();
+            configFilePath = drainIniOption.get();
         }
 
 
@@ -187,8 +185,8 @@ public class ArgumentParser implements ApplicationRunner {
 
 
         // (match) 전체 프로세스 실행
-        filePersistence.setFilePath(binFilePath);
-        templateMiner.init(drainIniFilePath);
+        filePersistence.setFilePath(templateFilePath);
+        templateMiner.init(configFilePath);
         templateMiner.loadState();
 
         // 실행시간 측정
@@ -223,7 +221,13 @@ public class ArgumentParser implements ApplicationRunner {
                         }
                     }
                     // 매칭
-                    templateMiner.match(line, "never");
+                    LogCluster cluseter = templateMiner.match(line, "never");
+                    if (cluseter != null) {
+                        log.info("INPUT: " + line);
+                        log.info("OUTPUT: " + cluseter.getTemplate());
+                    } else {
+                        log.info("No Matching template exists");
+                    }
                 }
             } catch (IOException e) {
                 log.error("Error reading log file: " + logFilePath, e);

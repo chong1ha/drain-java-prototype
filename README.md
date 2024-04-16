@@ -13,6 +13,7 @@ Read more information about Drain from the following paper:
 ## Usage
 
 Java 8 is required to run drain-java.
+It runs in a spring boot environment as a prototype.
 
 **Example: ([Loghub-2.0, HDFS_2k Log](https://github.com/logpai/loghub-2.0))**
 

@@ -1,6 +1,8 @@
 package com.example.drainjava.builtins;
 
-import com.example.drainjava.builtins.drain.LogCluster;
+import com.example.drainjava.drain.FilePersistence;
+import com.example.drainjava.TemplateMiner;
+import com.example.drainjava.drain.LogCluster;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

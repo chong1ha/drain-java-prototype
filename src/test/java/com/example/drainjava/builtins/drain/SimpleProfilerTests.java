@@ -1,5 +1,6 @@
 package com.example.drainjava.builtins.drain;
 
+import com.example.drainjava.drain.profiler.SimpleProfiler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,5 +1,7 @@
 package com.example.drainjava.builtins.drain;
 
+import com.example.drainjava.drain.LogCluster;
+import com.example.drainjava.drain.LogClusterCache;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

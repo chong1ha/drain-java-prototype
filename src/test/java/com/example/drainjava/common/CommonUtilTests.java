@@ -1,8 +1,8 @@
 package com.example.drainjava.common;
 
+import com.example.drainjava.common.util.CommonUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,9 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2024/04/11 12:15 AM
  */
 public class CommonUtilTests {
-
-    @Autowired
-    private CommonUtil commonUtil;
 
     @Test
     @DisplayName("로그 포맷(문자열)에서 헤더 추출 및 정규표현식 생성")
@@ -36,7 +33,7 @@ public class CommonUtilTests {
 
             //when
             List<String> actualHeaders = new ArrayList<>();
-            Pair<Pattern, List<String>> result = commonUtil.generateLogFormatRegex(zookeeperLogFormat, actualHeaders);
+            Pair<Pattern, List<String>> result = CommonUtil.generateLogFormatRegex(zookeeperLogFormat, actualHeaders);
             Pattern actualRegex = result.getFirst();
             String actualRegexStr = actualRegex.toString();
             actualHeaders = result.getSecond();

@@ -1,6 +1,7 @@
 package com.example.drainjava.builtins.drain;
 
 import com.example.drainjava.common.Pair;
+import com.example.drainjava.drain.Drain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
